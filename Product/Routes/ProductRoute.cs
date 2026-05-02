@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Product.Data;
 using Product.Models;
@@ -18,6 +19,7 @@ public static class ProductRoute
             int productStock = request.Stock ?? 0;
 
             var product = new ProductModel(productName, productPrice, productStock);
+            
             await context.AddAsync(product);
             await context.SaveChangesAsync();
 
@@ -28,7 +30,18 @@ public static class ProductRoute
         async (ProductContext context) =>
         {
             var products = await context.Products.ToListAsync();
+            
             return Results.Ok(products);
+        });
+
+        productsRoute.MapGet("/{id:guid}",
+        async (Guid id, ProductContext context) =>
+        {
+            var product = await context.Products.FirstOrDefaultAsync(product => product.Id == id);
+
+            if (product == null) {return Results.NotFound();}
+
+            return Results.Ok(product);
         });
     }
 }
