@@ -36,7 +36,7 @@ public static class ProductRoute
         productsRoute.MapGet("/{id:guid}",
         async (Guid id, ProductContext context) =>
         {
-            var product = await context.Products.FirstOrDefaultAsync(product => product.Id == id);
+            var product = await context.Products.FirstOrDefaultAsync(dbProduct => dbProduct.Id == id);
 
             if (product == null) { return Results.NotFound(); }
 
@@ -46,7 +46,7 @@ public static class ProductRoute
         productsRoute.MapPatch("/{id:guid}",
         async (Guid id, ProductUpdateRequest request, ProductContext context) =>
         {
-            var product = await context.Products.FirstOrDefaultAsync(product => product.Id == id);
+            var product = await context.Products.FirstOrDefaultAsync(dbProduct => dbProduct.Id == id);
 
             if (product == null) { return Results.NotFound(); }
             
@@ -66,7 +66,7 @@ public static class ProductRoute
         productsRoute.MapDelete("/{id:guid}",
         async (Guid id, ProductContext context) =>
         {
-            var product = await context.Products.FirstOrDefaultAsync(product => product.Id == id);
+            var product = await context.Products.FirstOrDefaultAsync(dbProduct => dbProduct.Id == id);
 
             if (product == null) { return Results.NotFound(); }
 
