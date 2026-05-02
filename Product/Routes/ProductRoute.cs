@@ -9,6 +9,7 @@ public static class ProductRoute
     public static void ProductRoutes(this WebApplication app)
     {
         var productsRoute = app.MapGroup("/products");
+        var productsByIdRoute = app.MapGroup("/products/{id:guid}");
 
         productsRoute.MapPost("/",
         async (ProductCreateRequest request, ProductContext context) =>
@@ -33,7 +34,7 @@ public static class ProductRoute
             return Results.Ok(products);
         });
 
-        productsRoute.MapGet("/{id:guid}",
+        productsByIdRoute.MapGet("/",
         async (Guid id, ProductContext context) =>
         {
             var product = await context.Products.FirstOrDefaultAsync(dbProduct => dbProduct.Id == id);
@@ -43,7 +44,7 @@ public static class ProductRoute
             return Results.Ok(product);
         });
 
-        productsRoute.MapPatch("/{id:guid}",
+        productsByIdRoute.MapPatch("/",
         async (Guid id, ProductUpdateRequest request, ProductContext context) =>
         {
             var product = await context.Products.FirstOrDefaultAsync(dbProduct => dbProduct.Id == id);
@@ -63,7 +64,7 @@ public static class ProductRoute
             return Results.Ok(product);
         });
 
-        productsRoute.MapDelete("/{id:guid}",
+        productsByIdRoute.MapDelete("/",
         async (Guid id, ProductContext context) =>
         {
             var product = await context.Products.FirstOrDefaultAsync(dbProduct => dbProduct.Id == id);
