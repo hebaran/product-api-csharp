@@ -11,7 +11,7 @@ public static class ProductRoute
         var productsRoute = app.MapGroup("/products");
 
         productsRoute.MapPost("/",
-        async (ProductRequest request, ProductContext context) =>
+        async (ProductCreateRequest request, ProductContext context) =>
         {
             string productName = request.Name;
             double productPrice = request.Price;
@@ -38,7 +38,27 @@ public static class ProductRoute
         {
             var product = await context.Products.FirstOrDefaultAsync(product => product.Id == id);
 
-            if (product == null) {return Results.NotFound();}
+            if (product == null) { return Results.NotFound(); }
+
+            return Results.Ok(product);
+        });
+
+        productsRoute.MapPatch("/{id:guid}",
+        async (Guid id, ProductUpdateRequest request, ProductContext context) =>
+        {
+            var product = await context.Products.FirstOrDefaultAsync(product => product.Id == id);
+
+            if (product == null) { return Results.NotFound(); }
+            
+            string? productName = request.Name;
+            double? productPrice = request.Price;
+            int? productStock = request.Stock;
+            
+            if (!string.IsNullOrWhiteSpace(productName)) { product.ChangeName(productName); }
+            if (productPrice.HasValue) { product.ChangePrice(productPrice.Value); }
+            if (productStock.HasValue) { product.UpdateStock(productStock.Value); }
+
+            await context.SaveChangesAsync();
 
             return Results.Ok(product);
         });
@@ -48,7 +68,7 @@ public static class ProductRoute
         {
             var product = await context.Products.FirstOrDefaultAsync(product => product.Id == id);
 
-            if (product == null) {return Results.NotFound();}
+            if (product == null) { return Results.NotFound(); }
 
             context.Remove(product);
             await context.SaveChangesAsync();
