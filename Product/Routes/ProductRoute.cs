@@ -43,5 +43,19 @@ public static class ProductRoute
 
             return Results.Ok(product);
         });
+
+        productsRoute.MapDelete("/{id:guid}",
+        async (Guid id, ProductContext context) =>
+        {
+            var product = await context.Products.FirstOrDefaultAsync(product => product.Id == id);
+
+            if (product == null) {return Results.NotFound();}
+
+            context.Remove(product);
+            await context.SaveChangesAsync();
+
+            return Results.NoContent();
+
+        });
     }
 }
