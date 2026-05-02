@@ -1,3 +1,5 @@
+using Product.Routes;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
@@ -11,5 +13,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.ProductRoutes();
 app.UseHttpsRedirection();
 app.Run();
