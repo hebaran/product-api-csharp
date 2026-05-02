@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Product.Data;
 using Product.Models;
+using Product.Services;
 
 namespace Product.Routes;
 
@@ -9,7 +10,19 @@ public static class ProductRoute
     public static void ProductRoutes(this WebApplication app)
     {
         var productsRoute = app.MapGroup("/products");
-        var productsByIdRoute = app.MapGroup("/products/{id:guid}");
+        var productsByIdRoute = app.MapGroup("/products/{id:guid}")
+            .AddEndpointFilter(async (context, next) =>
+            {
+                var productService = context.HttpContext.RequestServices.GetRequiredService<ProductService>();
+                var requestId = context.GetArgument<Guid>(0);
+                var idExists = await productService.IdVerify(requestId);
+
+                if (!idExists) { return Results.NotFound(); }
+
+                var result = await next(context);
+
+                return result;
+            });
 
         productsRoute.MapPost("/",
         async (ProductCreateRequest request, ProductContext context) =>
@@ -39,8 +52,6 @@ public static class ProductRoute
         {
             var product = await context.Products.FirstOrDefaultAsync(dbProduct => dbProduct.Id == id);
 
-            if (product == null) { return Results.NotFound(); }
-
             return Results.Ok(product);
         });
 
@@ -48,8 +59,6 @@ public static class ProductRoute
         async (Guid id, ProductUpdateRequest request, ProductContext context) =>
         {
             var product = await context.Products.FirstOrDefaultAsync(dbProduct => dbProduct.Id == id);
-
-            if (product == null) { return Results.NotFound(); }
             
             string? productName = request.Name;
             double? productPrice = request.Price;
@@ -68,8 +77,6 @@ public static class ProductRoute
         async (Guid id, ProductContext context) =>
         {
             var product = await context.Products.FirstOrDefaultAsync(dbProduct => dbProduct.Id == id);
-
-            if (product == null) { return Results.NotFound(); }
 
             context.Remove(product);
             await context.SaveChangesAsync();
