@@ -1,9 +1,11 @@
+using Product.Data;
 using Product.Routes;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<ProductContext>();
 
 var app = builder.Build();
 
