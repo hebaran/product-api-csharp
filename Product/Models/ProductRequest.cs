@@ -1,3 +1,4 @@
 namespace Product.Models;
 
-public record ProductRequest(string Name, double Price, int? Stock = 0);
+public record ProductCreateRequest(string Name, double Price, int? Stock);
+public record ProductUpdateRequest(string? Name, double? Price, int? Stock);
