@@ -14,4 +14,8 @@ public class ProductModel
     public string Name { get; private set; }
     public double Price { get; private set; }
     public int Stock { get; private set; }
+
+    public void ChangeName(string newName) { Name = newName; }
+    public void ChangePrice(double newPrice) { Price = newPrice; }
+    public void UpdateStock(int newStock) { Stock = newStock; }
 }
