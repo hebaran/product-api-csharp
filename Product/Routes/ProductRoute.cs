@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Product.Data;
 using Product.Models;
+using Product.Services;
 
 namespace Product.Routes;
 
@@ -37,9 +38,12 @@ public static class ProductRoute
         productsByIdRoute.MapGet("/",
         async (Guid id, ProductContext context) =>
         {
-            var product = await context.Products.FirstOrDefaultAsync(dbProduct => dbProduct.Id == id);
+            var product = await ProductService.GetProduct(id, context);
 
-            if (product == null) { return Results.NotFound(); }
+            if (product is null)
+            {
+                return Results.NotFound();
+            }
 
             return Results.Ok(product);
         });
@@ -47,17 +51,14 @@ public static class ProductRoute
         productsByIdRoute.MapPatch("/",
         async (Guid id, ProductUpdateRequest request, ProductContext context) =>
         {
-            var product = await context.Products.FirstOrDefaultAsync(dbProduct => dbProduct.Id == id);
+            var product = await ProductService.GetProduct(id, context);
 
-            if (product == null) { return Results.NotFound(); }
+            if (product is null)
+            {
+                return Results.NotFound();
+            }
             
-            string? productName = request.Name;
-            double? productPrice = request.Price;
-            int? productStock = request.Stock;
-            
-            if (!string.IsNullOrWhiteSpace(productName)) { product.ChangeName(productName); }
-            if (productPrice.HasValue) { product.ChangePrice(productPrice.Value); }
-            if (productStock.HasValue) { product.UpdateStock(productStock.Value); }
+            ProductService.MakeChanges(product, request);
 
             await context.SaveChangesAsync();
 
@@ -67,9 +68,12 @@ public static class ProductRoute
         productsByIdRoute.MapDelete("/",
         async (Guid id, ProductContext context) =>
         {
-            var product = await context.Products.FirstOrDefaultAsync(dbProduct => dbProduct.Id == id);
+            var product = await ProductService.GetProduct(id, context);
 
-            if (product == null) { return Results.NotFound(); }
+            if (product is null)
+            {
+                return Results.NotFound();
+            }
 
             context.Remove(product);
             await context.SaveChangesAsync();
